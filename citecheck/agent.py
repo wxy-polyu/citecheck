@@ -46,6 +46,7 @@ class AgentResult:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     system: str = "full"
+    trace: list[dict] = field(default_factory=list)
 
     @property
     def success(self) -> bool:
@@ -88,10 +89,11 @@ def answer_question(
 
     evidence: list[Chunk] = []
     steps = 0
+    trace: list[dict] = [{"action": "none", "queries": []}]
     if spec["retrieve"]:
         if retriever is None:
             retriever = Retriever(chunks, mode=_index_mode(spec["mode"]))
-        evidence, steps = collect_evidence(
+        evidence, steps, trace = collect_evidence(
             question,
             retriever,
             llm,
@@ -125,6 +127,7 @@ def answer_question(
         prompt_tokens=llm.usage.prompt_tokens - prompt_before,
         completion_tokens=llm.usage.completion_tokens - completion_before,
         system=system,
+        trace=trace,
     )
 
 
@@ -151,25 +154,32 @@ def collect_evidence(
     plan: bool,
     mode: str,
     top_k: int,
-) -> tuple[list[Chunk], int]:
+) -> tuple[list[Chunk], int, list[dict]]:
     if not plan:
-        return retriever.search(question, k=top_k, mode=mode), 1
+        return (
+            retriever.search(question, k=top_k, mode=mode),
+            1,
+            [{"action": "single", "queries": [question]}],
+        )
 
     evidence: list[Chunk] = []
     steps = 0
+    trace: list[dict] = []
     for round_index in range(2):
         decision = _plan(question, evidence[:8], llm)
         queries = [query for query in decision["queries"] if query.strip()][:3]
         if round_index > 0 and decision["action"] == "stop":
+            trace.append({"action": "stop", "queries": queries})
             break
         if not queries:
             queries = [question]
+        trace.append({"action": decision["action"], "queries": list(queries)})
         for query in queries:
             evidence = _merge(evidence, retriever.search(query, k=top_k, mode=mode))
             steps += 1
         if decision["action"] == "stop":
             break
-    return evidence[:8], steps
+    return evidence[:8], steps, trace
 
 
 def _plan(question: str, evidence: list[Chunk], llm: LLMClient) -> dict:

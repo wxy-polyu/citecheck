@@ -50,10 +50,10 @@ python -m citecheck.ask \
 Demo page:
 
 ```bash
-streamlit run app.py
+python -m citecheck.web
 ```
 
-Upload PDFs or use the sample papers. The page shows the answer, the check for each sentence, section and page citations, and the retrieved passages.
+Open http://127.0.0.1:8000 . Upload PDFs or use the sample papers. The page shows the answer, the check for each sentence, section and page citations, the retrieval trace, and the retrieved passages. The header switches the interface between Chinese and English.
 
 ## Comparisons
 

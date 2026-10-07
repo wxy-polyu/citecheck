@@ -68,12 +68,20 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(result.claims[0].label, "supported")
         self.assertEqual(result.claims[0].page, 5)
         self.assertIn("3 Experiments", result.answer)
+        self.assertEqual(
+            result.trace,
+            [
+                {"action": "search", "queries": ["WidgetNet accuracy"]},
+                {"action": "stop", "queries": []},
+            ],
+        )
         self.assertTrue(result.success)
         self.assertEqual(result.unsupported_rate, 0.0)
 
     def test_prompt_only_has_no_citation(self) -> None:
         result = answer_question("What accuracy does WidgetNet reach?", [], FakeLLM(), system="b1")
         self.assertEqual(result.steps, 0)
+        self.assertEqual(result.trace, [{"action": "none", "queries": []}])
         self.assertFalse(result.success)
         self.assertEqual(result.unsupported_rate, 1.0)
 
@@ -88,6 +96,10 @@ class AgentTest(unittest.TestCase):
             retriever=retriever,
         )
         self.assertEqual(llm.plans, 0)
+        self.assertEqual(
+            result.trace,
+            [{"action": "single", "queries": ["What accuracy does WidgetNet reach?"]}],
+        )
         self.assertEqual(retriever.calls, ["What accuracy does WidgetNet reach?"])
         self.assertEqual(result.claims[0].section, "3 Experiments")
 

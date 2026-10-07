@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f7f5">
+    <title>CiteCheck</title>
+    <link rel="stylesheet" href="/static/app.css">
+  </head>
+  <body>
+    <div class="app-shell" id="app-shell">
+      <header class="topbar">
+        <div class="topbar-start">
+          <button class="icon-button mobile-only" id="mobile-library-button" type="button" aria-label="Papers">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M3.5 4.5h13M3.5 10h13M3.5 15.5h13"/>
+            </svg>
+          </button>
+          <a class="brand" href="/" aria-label="CiteCheck home">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M15.8 6.9a6.5 6.5 0 1 0 0 10.2"/>
+                <path d="m14.3 12 2.2 2.2 4.2-5"/>
+              </svg>
+            </span>
+            <span>CiteCheck</span>
+          </a>
+          <span class="topbar-divider" aria-hidden="true"></span>
+          <span class="library-summary" id="library-summary" data-i18n="noLibrary"></span>
+        </div>
+
+        <nav class="topbar-actions" aria-label="Workspace actions">
+          <button class="text-button" id="history-open" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 5.2V10l3.1 1.8"/>
+              <path d="M4.2 4.4A7 7 0 1 1 3 12.7"/>
+              <path d="M2.5 4.2v4h4"/>
+            </svg>
+            <span data-i18n="history"></span>
+            <span class="count" id="history-count">0</span>
+          </button>
+          <div class="language-control" role="group" aria-label="Language">
+            <button type="button" data-lang="zh" id="lang-zh">中</button>
+            <span aria-hidden="true">/</span>
+            <button type="button" data-lang="en" id="lang-en">EN</button>
+          </div>
+          <button class="primary-button compact" id="add-papers" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 4v12M4 10h12"/>
+            </svg>
+            <span data-i18n="addPapers"></span>
+          </button>
+        </nav>
+      </header>
+
+      <div class="workspace-grid">
+        <aside class="library-sidebar" id="library-sidebar" aria-label="Paper library">
+          <div class="sidebar-heading">
+            <div>
+              <p class="eyebrow" data-i18n="library"></p>
+              <h1 data-i18n="papers"></h1>
+            </div>
+            <button class="icon-button mobile-only" id="library-close" type="button" aria-label="Close">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="m5 5 10 10M15 5 5 15"/>
+              </svg>
+            </button>
+          </div>
+
+          <section class="import-panel" id="import-panel">
+            <div class="source-tabs" role="tablist">
+              <button type="button" id="source-sample" data-source="sample" data-i18n="sample"></button>
+              <button type="button" id="source-upload" data-source="upload" data-i18n="upload"></button>
+            </div>
+            <label class="check-row" id="lite-row">
+              <input type="checkbox" id="include-lite">
+              <span data-i18n="lite"></span>
+            </label>
+            <label class="file-picker" id="upload-row" hidden>
+              <input type="file" id="files" accept="application/pdf,.pdf" multiple>
+              <span class="file-picker-action" data-i18n="chooseFiles"></span>
+              <span class="file-picker-copy" data-i18n="drop"></span>
+              <span class="file-names" id="file-names"></span>
+            </label>
+            <div class="index-action">
+              <button type="button" class="primary-button" id="index-button"></button>
+              <p id="index-status" class="status" role="status"></p>
+            </div>
+          </section>
+
+          <div class="paper-tree" id="outline"></div>
+
+          <div class="sidebar-settings">
+            <label class="field-label" for="system-select" data-i18n="system"></label>
+            <select id="system-select"></select>
+            <p class="system-description" id="system-description"></p>
+          </div>
+        </aside>
+
+        <main class="main-workspace">
+          <div class="main-column">
+            <form class="question-composer" id="ask-form">
+              <div class="composer-heading">
+                <label for="question" data-i18n="question"></label>
+                <span data-i18n="shortcut"></span>
+              </div>
+              <div class="composer-control">
+                <textarea id="question" rows="3" data-i18n-placeholder="questionPlaceholder"></textarea>
+                <button type="submit" class="submit-button" id="ask-button">
+                  <span data-i18n="answer"></span>
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 10h11M11 6l4 4-4 4"/>
+                  </svg>
+                </button>
+              </div>
+              <p id="error" class="error" role="alert" hidden></p>
+            </form>
+            <div class="stage" id="stage"></div>
+          </div>
+        </main>
+
+        <aside class="detail-panel" id="detail-panel" aria-label="Evidence and run details">
+          <div class="drawer-header">
+            <div class="detail-tabs" role="tablist">
+              <button type="button" data-detail-tab="sources" data-i18n="sources"></button>
+              <button type="button" data-detail-tab="run" data-i18n="runDetails"></button>
+            </div>
+            <button class="icon-button" id="detail-close" type="button" aria-label="Close">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="m5 5 10 10M15 5 5 15"/>
+              </svg>
+            </button>
+          </div>
+          <div class="drawer-content" id="detail-content"></div>
+        </aside>
+      </div>
+
+      <div class="scrim" id="scrim"></div>
+
+      <aside class="history-drawer" id="history-drawer" aria-label="Session history">
+        <div class="drawer-header">
+          <div>
+            <p class="eyebrow" data-i18n="session"></p>
+            <h2 data-i18n="history"></h2>
+          </div>
+          <button class="icon-button" id="history-close" type="button" aria-label="Close">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="m5 5 10 10M15 5 5 15"/>
+            </svg>
+          </button>
+        </div>
+        <p class="drawer-note" data-i18n="historyHint"></p>
+        <div class="history-list" id="history"></div>
+      </aside>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
